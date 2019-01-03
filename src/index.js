@@ -4,16 +4,32 @@ import  ReactDom from 'react-dom'
 
 class IndecisionApp extends React.Component{
 
+    constructor(props){
+        super(props);
+        this.state = {
+            options: ["The one thing", "The two Thing", "The three thing"]
+        };
+    }
+
+    // define a method to clear options
+    handleDeleteOptions = () =>{
+        this.setState({
+            options: []
+        })
+    }
+
     render(){
         const title = "Indecision-App";
         const sub_title = "Unsure of working out your plan! get your plan sorted using the Indecision app";
-        const options = ["Thing one", "Thing two", "Thing three"];
         return (
             <div>
             <Header title={title} sub_title={sub_title}/>
-            <Action/>
-            <Options options={options}/>
-            <AddOption options={options}/>
+            <Action hasOptions={this.state.options.length > 0 }/>
+            <Options
+            options={this.state.options}
+            handleDeleteOptions={this.handleDeleteOptions}
+            />
+            <AddOption options={this.state.options}/>
             </div>
         );
     }
@@ -41,28 +57,37 @@ class Action extends React.Component{
     render(){
         return (
             <div>
-                <button onClick={this.handlePick}> What should i do now? </button>
+                <button
+                onClick={this.handlePick}
+                disabled={!this.props.hasOptions}>
+                What should i do now?
+                </button>
             </div>
         )
     }
 }
 // Options components
 class Options extends React.Component{
-    clearOptions(){
-        alert("remove all options");
+    constructor(props){
+        super(props)
     }
+    clearOptions = () => {
+        this.props.handleDeleteOptions();
+    }
+
     render(){
         const options = this.props.options
         return(
             <div>
                 <button onClick={this.clearOptions}> Clear options</button>
               {
-                  options.map((option) => <Option key={option} optionText={option}/>)
+                options.map((option) => <Option key={option} optionText={option}/>)
               }
             </div>
         )
     }
 }
+
 // option component here
 class Option extends React.Component{
     render(){
@@ -79,25 +104,40 @@ class AddOption extends React.Component{
     //  we are using the constructor method to bind our method to the instance of class AddOption
     constructor(props){
         super(props);
+        this.state = {
+            option:"",
+            text:"",
+            status:0,
+            person: {
+                name:""
+            }
+        }
         this.handleAddOption = this.handleAddOption.bind(this)
+    }
+    handleChangeState = (event) =>{
+        this.setState({
+            option: event.target.value
+        }
+    );
     }
     handleAddOption(e){
         // prevents the browser default form submission where we get the browser refreshed
         e.preventDefault();
         // let option_value = document.querySelector("#option").value;
-        const option = e.target.elements.option.value.trim();
-        if (option){
-            alert(option);
-        }
-        console.log(this.props.options)
     }
     render(){
         return(
             <div>
                 <form onSubmit={this.handleAddOption}>
                     <div>
-                    <input type="text" id="option" placeholder="add option here"/>
-                    <button> Add option </button>
+                    <input
+                        type="text"
+                        id="option"
+                        placeholder="add option here"
+                        value={this.state.option}
+                        onChange={this.handleChangeState}
+                       />
+                    <button disabled={this.state.option === ""}> Add option </button>
                     </div>
                 </form>
             </div>
